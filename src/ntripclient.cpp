@@ -27,9 +27,61 @@
 #include <string.h>
 #include <time.h>
 #include <regex>
+#include <thread>
+#include <mutex>
+#include <string>
+#include <iostream>
 using namespace std;
 
 #include "serial.h"
+
+mutex g_mtx;
+string g_nmea;
+
+
+string getGNGGA()
+{
+    string::size_type position  = g_nmea.find('\n');
+    if( position == g_nmea.npos )
+        return string();
+
+    string candidate = g_nmea.substr(0,position);
+    cout<<"candidate:"<<candidate<<endl;
+    g_mtx.lock();
+    g_nmea = g_nmea.substr(position + 1, g_nmea.length() - 1 );
+    g_mtx.unlock();
+
+    smatch m;
+    regex e("$GNGGA,(.-),(.-),.-,(.-),");
+    if( std::regex_search (candidate, m, e) )
+    {
+        for (auto x:m) cout << x << " ";
+        cout<<endl;
+        return m[0];
+    }
+    else
+        return string();
+}
+
+void appendNMEA(char* buf, int i)
+{
+    g_mtx.lock();
+    g_nmea.append(buf,i);
+    g_mtx.unlock();
+ 
+    string s = getGNGGA();
+    if( s.empty() )
+    {
+    }
+    else
+    {
+        //emit signal
+        cout<<s;
+    }
+}
+
+
+
 
 #ifdef WINDOWSVERSION
   #include <winsock.h>
@@ -1658,6 +1710,8 @@ int main(int argc, char **argv)
                       fwrite(buf, i, 1, stdout);
                       if(ser)
                         fwrite(buf, i, 1, ser);
+                      appendNMEA(buf,i);
+
                       while(j < i)
                       {
                         if(nmeabufpos < 6)
