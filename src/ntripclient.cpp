@@ -26,6 +26,8 @@
 #include <errno.h>
 #include <string.h>
 #include <time.h>
+#include <regex>
+using namespace std;
 
 #include "serial.h"
 
