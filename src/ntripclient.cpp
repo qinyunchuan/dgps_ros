@@ -52,11 +52,12 @@ string getGNGGA()
     g_mtx.unlock();
 
     smatch m;
-    regex e("$GNGGA,(.-),(.-),.-,(.-),");
+    regex e("\\$GNGGA,(.*?),(.*?),.*?,(.*?),");
     if( std::regex_search (candidate, m, e) )
     {
-        for (auto x:m) cout << x << " ";
-        cout<<endl;
+        //for (auto x:m) cout << x << "^_^ ";
+        //cout<<endl;
+        cout<<"Lat:"<<m[2]<<"Longi:"<<m[3]<<endl;
         return m[0];
     }
     else
