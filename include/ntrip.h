@@ -31,8 +31,17 @@ struct Args
   bool stop;
 };
 
+
+struct Location
+{
+
+    std::string nmea;
+    std::string lat;
+    std::string lon;
+};
+
 void ntrip_client(Args*  const);
-std::string getGNGGA();
+Location getGNGGA();
 #endif
 
 
