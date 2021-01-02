@@ -40,11 +40,12 @@ mutex g_mtx;
 string g_nmea;
 
 
-string getGNGGA()
+Location getGNGGA()
 {
+    Location location;
     string::size_type position  = g_nmea.find('\n');
     if( position == g_nmea.npos )
-        return string();
+        return location;
 
     string candidate = g_nmea.substr(0,position);
    
@@ -59,10 +60,13 @@ string getGNGGA()
         //for (auto x:m) cout << x << "^_^ ";
         //cout<<endl;
         cout<<"Lat:"<<m[2]<<"Longi:"<<m[3]<<endl;
-        return m[0];
+        location.nmea = candidate;
+        location.lat = m[2];
+        location.lon = m[3];
+        return location;
     }
     else
-        return string();
+        return location;
 }
 
 void appendNMEA(char* buf, int i)
@@ -1670,7 +1674,7 @@ void ntrip_client(Args* const args )
                     {
                       int j = 0;
                       if(i < 200) doloop = 0;
-                      fwrite(buf, i, 1, stdout);
+                      //fwrite(buf, i, 1, stdout);
                       if(ser)
                         fwrite(buf, i, 1, ser);
                       appendNMEA(buf,i);

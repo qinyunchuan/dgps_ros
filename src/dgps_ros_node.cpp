@@ -39,6 +39,7 @@ int main(int argc, char **argv)
         args.serdevice = 0;//"/dev/ttyUSB0";  
     else
         args.serdevice = serialPort.c_str();
+    args.serlogfile = 0;
     args.stop = false;
 
     
@@ -50,15 +51,14 @@ int main(int argc, char **argv)
     ros::Rate loop_rate(10);
     while (ros::ok())
     {
-        getGNGGA();
-        std::string s = getGNGGA();
-        if( s.empty() )
+        Location loc = getGNGGA();
+        if( loc.lat.empty() )
         {
         }
         else
         {
            // cout<<s;
-            ROS_INFO("Talker_____:GPS:x = %s",s.c_str()); 
+            ROS_INFO("Talker_____:GPS:x = %s",loc.nmea.c_str()); 
         }
         ros::spinOnce();
         loop_rate.sleep();
