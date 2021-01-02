@@ -1,3 +1,5 @@
+#ifndef NSERIAL_H
+#define NSERIAL_H
 
 #include <errno.h>
 #include <fcntl.h>
@@ -88,3 +90,6 @@ const char *Device, enum SerialBaud Baud, enum SerialStopbits StopBits,
 	__attribute__((__unused__))
 	#endif /* __GNUC__ */
 );
+
+#endif
+
