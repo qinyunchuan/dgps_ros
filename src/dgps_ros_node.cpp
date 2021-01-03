@@ -37,7 +37,7 @@ void fillSatMessage(sensor_msgs::NavSatFix& sat, Location& loc )
     sat.status.service = SERVICE_GPS;
 
     sat.latitude = NMEA2float(loc.lat);
-    sat.longitude = NMEA2float(loc.lat);
+    sat.longitude = NMEA2float(loc.lon);
     sat.altitude = std::stod(loc.alt);
    
     std::copy(covariance.begin(), covariance.end(),sat.position_covariance.begin());
