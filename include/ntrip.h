@@ -38,6 +38,10 @@ struct Location
     std::string nmea;
     std::string lat;
     std::string lon;
+    std::string alt;
+    std::string hdop;
+    std::string vdop;
+    std::string fix;
 };
 
 void ntrip_client(Args*  const);

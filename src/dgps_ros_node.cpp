@@ -1,7 +1,54 @@
 #include <ros/ros.h>
+#include <sensor_msgs/NavSatFix.h>
+#include <sensor_msgs/NavSatStatus.h>
 #include <thread>
 #include <string>
 #include "ntrip.h"
+
+
+#define STATUS_NO_FIX -1
+#define STATUS_FIX 0
+#define STATUS_GBAS_FIX 2
+#define SERVICE_GPS 1
+#define COVARIANCE_TYPE_DIAGONAL_KNOWN  2
+
+double NMEA2float(std::string s)
+{
+    double d = std::stod(s)/100.0;
+    d = floor(d) + (d - floor(d))*10/6;
+    return d;
+}
+
+boost::array<double,9> covariance={1,0,0,
+                     0,1,0,
+                     0,0,1 };
+
+void fillSatMessage(sensor_msgs::NavSatFix& sat, Location& loc )
+{
+    sat.header.frame_id="gps";
+    sat.header.stamp = ros::Time::now();
+
+    if( loc.fix == "0" )
+        sat.status.status = STATUS_NO_FIX;
+    else if( loc.fix == "1" )
+        sat.status.status = STATUS_FIX;
+    else
+        sat.status.status = STATUS_GBAS_FIX;
+    sat.status.service = SERVICE_GPS;
+
+    sat.latitude = NMEA2float(loc.lat);
+    sat.longitude = NMEA2float(loc.lat);
+    sat.altitude = std::stod(loc.alt);
+   
+    std::copy(covariance.begin(), covariance.end(),sat.position_covariance.begin());
+    sat.position_covariance[0]  = std::stod(loc.hdop);
+    sat.position_covariance[4]  = std::stod(loc.hdop);
+    sat.position_covariance[8]  = 10;
+
+
+    sat.position_covariance_type = COVARIANCE_TYPE_DIAGONAL_KNOWN;
+    
+}
 
 
 int main(int argc, char **argv)
@@ -13,9 +60,10 @@ int main(int argc, char **argv)
     std::string serverName,userName,password,serverPort,serialPort;
     nh.param<std::string>("server",serverName, "rtk.ntrip.qxwz.com");
     nh.param<std::string>("port",serverPort, "8002");
-    nh.param<std::string>("username",userName, "qxsskx001");
-    nh.param<std::string>("password",password, "e513f03");
+    nh.param<std::string>("username",userName, "user");
+    nh.param<std::string>("password",password, "password");
     nh.param<std::string>("serialPort",serialPort, "");
+
 
     struct Args args;
     args.server = serverName.c_str();
@@ -46,6 +94,9 @@ int main(int argc, char **argv)
     ROS_INFO("Username= %s",args.user); 
     ROS_INFO("password= %s",args.password); 
 
+    const std::string topic = "dgps";
+    ros::Publisher pub = nh.advertise<sensor_msgs::NavSatFix>(topic,10);
+
     
     std::thread ntrip_thread(ntrip_client,&args);
     ros::Rate loop_rate(10);
@@ -58,6 +109,9 @@ int main(int argc, char **argv)
         else
         {
            // cout<<s;
+            sensor_msgs::NavSatFix sat;
+            fillSatMessage(sat,loc);
+            pub.publish(sat);
             ROS_INFO("Talker_____:GPS:x = %s",loc.nmea.c_str()); 
         }
         ros::spinOnce();

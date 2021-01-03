@@ -54,7 +54,7 @@ Location getGNGGA()
     g_mtx.unlock();
 
     smatch m;
-    regex e("\\$GNGGA,(.*?),(.*?),.*?,(.*?),");
+    regex e("\\$GNGGA,(.*?),(.*?),.*?,(.*?),.*?,(.*?),.*?,(.*?),(.*?),");
     if( std::regex_search (candidate, m, e) )
     {
         //for (auto x:m) cout << x << "^_^ ";
@@ -63,6 +63,9 @@ Location getGNGGA()
         location.nmea = candidate;
         location.lat = m[2];
         location.lon = m[3];
+        location.fix = m[4];
+        location.hdop = m[5];
+        location.alt = m[6];
         return location;
     }
     else
