@@ -1,10 +1,12 @@
 # dgps_ros
 
-#### 介绍
-差分GPS模块的ROS包
+#### Introduction
+ROS Package for differential GPS, with no external dependency.  
+It receive RTCM data from the Ntrip(Networked Transport of RTCM via Internet Protocol) server,
+and send to the gps module. NMEA data received from gps module is then converted into  navsatfix message.
 
 
-#### 安装教程
+#### Installation
 
 1.  mkdir -p catkin/src
 2.  cd catkin
@@ -15,15 +17,30 @@
 7.  cd ..
 8.  catkin_make
 
-#### 使用说明
+#### how to launch
 
 1. roslaunch dgps_ros dgps.launch
 
-#### 参与贡献
+### paramaters
+~server  
+address(domain name or ip address) for Ntrip(Networked Transport of RTCM via Internet Protocol) server
 
-1.  Fork 本仓库
-2.  新建 Feat_xxx 分支
-3.  提交代码
-4.  新建 Pull Request
+~port  
+service port for the ntrip server
+
+~username  
+username for ntrip server
+
+~password  
+password for username in ntrip server
+
+~serialPort  
+serial port device file for the gps device
+
+
+### published topics
+  dgps(sensor_msgs/NavSatFix)  
+differential GPS message
+
 
 
